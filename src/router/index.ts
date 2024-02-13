@@ -1,6 +1,7 @@
+import AboutPage from '@/views/AboutPage.vue'
+import CreateAccountPage from '@/views/CreateAccountPage.vue'
+import LoginPage from '@/views/LoginPage.vue'
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import LoginPage from '../views/LoginPage.vue'
-import AboutPage from '../views/AboutPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -12,7 +13,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/about',
     name: 'about',
     component: AboutPage
+  },
+  {
+    path: '/newAccount',
+    name: 'newAccount',
+    component: CreateAccountPage
   }
+
 ]
 
 const router = createRouter({

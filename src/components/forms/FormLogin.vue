@@ -18,7 +18,7 @@
                     Entrar no Sistema
                 </button>
                 <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-                    Não tem uma Conta? <a href="#" class="text-emerald-800 hover:underline dark:text-emerald-500">Criar uma Conta</a>
+                    Não tem uma Conta? <a href="#" v-on:click="pageCreateAccount()" class="text-emerald-800 hover:underline dark:text-emerald-500">Criar uma Conta</a>
                 </div>
             </form>
         </div>
@@ -59,6 +59,9 @@ export default defineComponent({
             } else{
                 this.$router.push('home');
             }  
+        },
+        pageCreateAccount(){
+            this.$router.push('newAccount')
         }
     }
 })
