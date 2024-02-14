@@ -21,6 +21,8 @@
                     Não tem uma Conta? <a href="#" v-on:click="pageCreateAccount()" class="text-emerald-800 hover:underline dark:text-emerald-500">Criar uma Conta</a>
                 </div>
             </form>
+
+            <router-view />
         </div>
 
 </template>

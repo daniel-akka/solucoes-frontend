@@ -7,7 +7,8 @@ const api: AxiosInstance = axios.create(
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Origin, X-Requested-Width, Content-Type, Accept',
             'Access-Control-Allow-Methods': 'GET, POST, PUT',
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
+            'Accept': '*/*'
         }
     }
 );
