@@ -21,7 +21,7 @@
                     Não tem uma Conta? <a href="#" v-on:click="pageCreateAccount()" class="text-emerald-800 hover:underline dark:text-emerald-500">Criar uma Conta</a>
                 </div>
             </form>
-
+            <div v-show="false"><HomePage :user="user"/></div>
             <router-view />
         </div>
 
@@ -31,35 +31,55 @@
 import { defineComponent } from 'vue'
 import '@/global-css/centraliza-div.css'
 import api from '@/services/api'
+import UsuarioSimples from '@/classes/ClUsuario'
+import HomePage from '@/views/HomePage.vue'
+
+
+let usuario_login = new UsuarioSimples()
 
 export default defineComponent({
     name: 'FormLogin',
+    components: {
+        HomePage
+    },
     emit: ['mostarErro'],
     data() {
         return{
             login_email: null,
             senha: null,
-            usuario: null
+            user: UsuarioSimples
         }
     },
     methods: {
         async getUsuarioLogin() {
+
+            let usuario = {
+                id: '',
+                login: '',
+                senha: '',
+                email: ''
+            }
             
             const qs = require('qs');
             await api.get(qs.stringify({
                 'login': this.login_email, 
                 'senha': this.senha
             }))
-                .then(response => (this.usuario = response.data))
+                .then(response => (Object.assign(usuario, response.data)))
                 .catch((error) => {
-                    this.usuario = null;
                     console.log(JSON.stringify(error));
                 });
 
-            if (this.usuario == null){
+            if (usuario == null){
                 this.$emit('mostrarErro', true, "Usuario não Encontrado");
             } else{
-                this.$router.push('home');
+                
+                usuario_login.id = usuario.id
+                usuario_login.login = usuario.login
+
+                Object.assign(this.user, usuario_login)
+                
+                this.$router.push('home')
             }  
         },
         pageCreateAccount(){

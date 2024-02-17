@@ -19,51 +19,35 @@
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
-                        <th scope="col" class="px-6 py-3">
+                        <th v-show="false" scope="col" class="px-6 py-3">
                             Id
                         </th>
                         <th scope="col" class="px-6 py-3">
                             Resumo da Situação
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Ação
+                            
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Apple MacBook Pro 17"
+                    <tr v-for="sit in lista_situacoes" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <th v-show="false" scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                           {{ sit.id }}
                         </th>
-                        <td class="px-6 py-4">
-                            Silver
+                        <td scope="row" class="pr-6 pb-4 pt-1 pl-6">
+                            <p class="pt-4 font-medium text-red-700 whitespace-nowrap dark:text-white">
+                                {{ sit.resumo }}
+                            </p>
+                            <p >
+                                {{ sit.descricao_problema }}
+                            </p>
                         </td>
                         <td class="px-6 py-4">
                             <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a>
                         </td>
                     </tr>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Microsoft Surface Pro
-                        </th>
-                        <td class="px-6 py-4">
-                            White
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a>
-                        </td>
-                    </tr>
-                    <tr class="bg-white dark:bg-gray-800">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Magic Mouse 2
-                        </th>
-                        <td class="px-6 py-4">
-                            Black
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a>
-                        </td>
-                    </tr>
+                    
                 </tbody>
             </table>
         </div>
@@ -72,10 +56,51 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import UsuarioSimples from '@/classes/ClUsuario';
+import Situacoes from '@/interfaces/Situacoes'
+import api from '@/services/api';
+import { defineComponent, ref } from 'vue'
+
+let usuario_logado = new UsuarioSimples()
 
 export default defineComponent({
     name: 'HomeListaSituacoes',
+    props: {
+        user: Object
+    },
+    setup() {
+
+            let situacoes_array = new Array<Situacoes>()
+
+            let lista_situacoes = ref([{
+                id: '',
+                resumo: '',
+                descricao_problema: ''
+            }])
+
+            return {
+                situacoes_array,
+                lista_situacoes
+            }
+        },
+    created() {
+        
+        Object.assign(usuario_logado, this.user)
+        this.getSituacoesUsuario(usuario_logado)
+    },
+    methods: {
+        async getSituacoesUsuario(usuario: UsuarioSimples){
+
+           
+            let qs = require('qs')
+            await api.get('home/user_id=' + usuario.id)
+                .then((resp) => { Object.assign(this.situacoes_array, resp.data)})
+                .catch((erro) => {console.log('Nenhum Registro encontrado!')})
+
+                Object.assign(this.lista_situacoes, this.situacoes_array)
+                
+        }
+    }
 })
 </script>
 

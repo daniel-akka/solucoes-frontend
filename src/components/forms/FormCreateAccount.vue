@@ -53,25 +53,8 @@ import '../../global-css/centraliza-div.css'
 import api from '@/services/api'
 import MsgAlerta from '../MsgAlerta.vue'
 import MsgSucess from '../MsgSucess.vue'
-
-export class Usuario{
-    login: string
-    email: string
-    senha: string
-
-    constructor(){
-        this.login = ''
-        this.email = ''
-        this.senha = ''
-    }
-
-}
-
-export interface UsuarioConsulta{
-    login: string
-    email: string
-}
-
+import UsuarioConsulta from '@/interfaces/UsuarioConsulta'
+import Usuario from '@/classes/ClUsuario'
 
 let lista_usuarios = new Array<UsuarioConsulta>()
 let usuario: Usuario
@@ -121,6 +104,10 @@ export default defineComponent({
             this.show_alerta = false
             
             if (this.pode_salvar){
+
+                usuario.login = this.login
+                usuario.email = this.email
+                usuario.senha = this.senha
 
                 let entity = {
                     "login": this.login,
