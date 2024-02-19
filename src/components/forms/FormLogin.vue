@@ -31,7 +31,7 @@
 import { defineComponent } from 'vue'
 import '@/global-css/centraliza-div.css'
 import api from '@/services/api'
-import UsuarioSimples from '@/classes/ClUsuario'
+import UsuarioSimples from '@/classes/ClUsuarioSimples'
 import HomePage from '@/views/HomePage.vue'
 
 
@@ -91,4 +91,4 @@ export default defineComponent({
 
 <style scoped>
 
-</style>
+</style>@/classes/ClUsuarioSimples

@@ -1,4 +1,4 @@
-import Usuario from '@/classes/ClUsuario'
+import Usuario from '@/classes/ClUsuarioSimples'
 import AboutPage from '@/views/AboutPage.vue'
 import CreateAccountPage from '@/views/CreateAccountPage.vue'
 import HomePage from '@/views/HomePage.vue'

@@ -14,7 +14,9 @@
                     <input type="text" id="table-search" class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Pesquisar por Situações">
                 </div>
 
-                <button type="button" class="flex flex-col p-4 mt-4 border focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Nova Situação</button>
+                <button type="button" @click="$emit('paginaCadastrar')" class="flex flex-col p-4 mt-4 border focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                    Nova Situação
+                </button>
             </div>
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -56,7 +58,7 @@
 </template>
 
 <script lang="ts">
-import UsuarioSimples from '@/classes/ClUsuario';
+import UsuarioSimples from '@/classes/ClUsuarioSimples';
 import Situacoes from '@/interfaces/Situacoes'
 import api from '@/services/api';
 import { defineComponent, ref } from 'vue'
@@ -68,6 +70,7 @@ export default defineComponent({
     props: {
         user: Object
     },
+    emits: ['paginaCadastrar'],
     setup() {
 
             let situacoes_array = new Array<Situacoes>()
@@ -106,4 +109,4 @@ export default defineComponent({
 
 <style scoped>
 
-</style>
+</style>@/classes/ClUsuarioSimples

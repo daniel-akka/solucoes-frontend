@@ -54,7 +54,7 @@ import api from '@/services/api'
 import MsgAlerta from '../MsgAlerta.vue'
 import MsgSucess from '../MsgSucess.vue'
 import UsuarioConsulta from '@/interfaces/UsuarioConsulta'
-import Usuario from '@/classes/ClUsuario'
+import Usuario from '@/classes/ClUsuarioSimples'
 
 let lista_usuarios = new Array<UsuarioConsulta>()
 let usuario: Usuario
@@ -206,4 +206,4 @@ export default defineComponent({
 .margem {
     margin-bottom: 12px;
 }
-</style>
+</style>@/classes/ClUsuarioSimples
