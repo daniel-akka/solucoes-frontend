@@ -196,6 +196,7 @@ export default defineComponent({
 
                 if (this.situacao.problema.links.find(l => l.url == this.link_atual)){
                     alert('Este link já foi adicionado')
+                    this.link_atual = ''
                 }else {
                     
                     let var_link = new Link
@@ -207,21 +208,20 @@ export default defineComponent({
                 }
 
             }
-            
-            console.log('Problema Resumo: ' + this.situacao.resumo)
-            console.log('Problema Detalhado: ' + this.situacao.problema.descricao)
-            console.log('Links: ')
-            this.situacao.problema.links.forEach(l => console.log(l.url))
-            
+                        
         },
         removeLink(link: Link){
             
-            this.situacao.problema.links.splice(this.situacao.problema.links.indexOf(link))
+            const item = this.situacao.problema.links.findIndex(l => l.url == link.url)
+            if (item > -1){
+                this.situacao.problema.links.splice(item, 1)
+            }
+            
         },
         removeImagem(imagem: string){
             
             console.log('imagem remover: ' + imagem)
-            this.form.imagens.splice(this.form.imagens.indexOf(imagem))
+            this.form.imagens.splice(this.form.imagens.indexOf(imagem), 1)
             this.imagem_atual = ''
         },
         async saveSituacao(){
