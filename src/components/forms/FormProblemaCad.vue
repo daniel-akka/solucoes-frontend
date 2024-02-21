@@ -3,7 +3,7 @@
             
             <div class="mb-6">
                 <label for="descricao_problema" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrição do Problema:</label>
-                <textarea v-model="form.descricao_problema" id="descricao_problema" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Escreva uma descricao do problema..."></textarea>
+                <textarea v-model="situacao.problema.descricao" id="descricao_problema" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Escreva uma descricao do problema..."></textarea>
             </div>
 
             <!-- LINKS -->
@@ -16,12 +16,12 @@
                         class="mt-2 w-full text-sm focus:ring-red-500 focus:border-red-500 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" 
                         type="text" placeholder="http://">
 
-                    <select v-show="(form.links.length > 0)" 
+                    <select v-show="(situacao.problema.links.length > 0)" 
                         v-model="model_links"
                         multiple id="countries_multiple" 
-                        class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500">
-                        <option v-for="link in form.links" :value="link" @dblclick="removeLink(link)" 
-                            >{{ link }}</option>
+                        class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
+                        <option v-for="link in situacao.problema.links" :value="link.url" @dblclick="removeLink(link)" 
+                            >{{ link.url }}</option>
                     </select>                  
                 </div>
             </div>
@@ -32,12 +32,19 @@
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload de Imagens:</label>
                 <div class="border-2 rounded-lg p-2">
                     
-                    <input v-for="(item, index) in lista_imagens" :id="'imgItem' + index" 
-                        v-on:change="addImagem(index)" 
+                    <input v-on:change="addImagem($event)" 
+                        :ref="imagem_atual" 
                         class="mt-2 w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="file_input" type="file"
                         accept=".png, .jpg, .jpeg">
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG (MAX. 5MB).</p>
                     
+                    <select v-show="(form.imagens.length > 0)" 
+                        v-model="model_imagens"
+                        multiple id="imagem_multiple" 
+                        class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500">
+                        <option v-for="img in form.imagens" :value="img" @dblclick="removeImagem(img)" 
+                            >{{ img }}</option>
+                    </select> 
                 </div>
             </div>
 
@@ -49,7 +56,7 @@
                 <div class="border-2 rounded-lg p-2">
                     <input v-for="(item, index) in lista_documentos" :id="'docItem' + index" 
                         v-on:change="addDocumento(index)"
-                        class="mt-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="file_input" type="file"
+                        class="mt-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" type="file"
                         accept=".doc, .docx, .txt, .pdf">
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">TXT, DOC, DOX, PDF (MAX. 10MB).</p>
                     
@@ -65,9 +72,21 @@ import InputImageFile from '@/components/inputs/InputImageFile.vue'
 import InputDocFile from '@/components/inputs/InputDocFile.vue'
 import InputVideoFile from '@/components/inputs/InputVideoFile.vue'
 import InputLinkText from '@/components/inputs/InputLinkText.vue'
+import UsuarioSimples from '@/classes/ClUsuarioSimples'
+import SituacaoDto from '@/classes/dto/ClSituacaoDto'
+import Link from '@/classes/ClLink'
+import api from '@/services/api'
+
+let usuario_logado = new UsuarioSimples()
 
 export default defineComponent({
     name: 'FormProblemaCad',
+    emits: ['paginaListar'],
+    props:{
+        user: Object,
+        param_situacao: Object,
+        resumo: String
+    },
     components: {
         InputImageFile,
         InputDocFile,
@@ -75,47 +94,90 @@ export default defineComponent({
         InputLinkText
     },
     data() {
-        let arr_link: string[] = []
+        let arr_string: string[] = []
+        let arr_str_imagem: string[] = []
+        let userSimples = new UsuarioSimples()
+        let sit = new SituacaoDto()
+
         return{
+            usuario: UsuarioSimples,
             newLink: '',
             link_atual: '',
+            imagem_atual: '',
             model_links: null,
+            model_imagens: null,
+            file_img: ref<File | null>(),
+            situacao: sit,
             form: {
+                usuario: userSimples,
                 resumo: '',
                 descricao_problema: '',
-                links: arr_link
+                links: arr_string,
+                imagens: arr_str_imagem,
+                docs: arr_string
             }
         }
     },
-    setup () {
+    created() {
         
-        let array_numero_img: number[] = [1]
-        let array_numero_doc: number[] = [1]
-        let array_numero_link: number[] = [1]
-        let array_string_link: string[] = []
+        Object.assign(usuario_logado, this.user)
+        Object.assign(this.usuario, this.$props.user)
+        Object.assign(this.situacao, this.param_situacao)
 
-        let lista_imagens = ref(array_numero_img) 
-        let lista_documentos = ref(array_numero_doc)
-        let lista_indice_links = ref(array_numero_link)
-
-        let lista_links = ref(array_string_link)
-
-        return { lista_imagens, lista_documentos, lista_indice_links,
-        lista_links }
+        this.form.usuario = usuario_logado
     },
-    created(){
-        
+    setup () {
+
+        const file = {
+            file: ref<File | null>(),
+            name: '',
+            extension: '',
+            type: '',
+            size: 0.0,
+            text: '',
+            buffer: ref<Promise<ArrayBuffer>>(),
+            stream: ref<ReadableStream<Uint8Array>>()
+        }
+
+        let array_numero_doc: number[] = [1] 
+        let lista_documentos = ref(array_numero_doc)
+
+        let array_imagens = [file] 
+
+        return { lista_documentos, array_imagens,
+            file
+         }
     },
     methods: {
-        addImagem(indice: number){
+        addImagem($event: Event){
 
-            let id = 'imgItem' + indice
-            let itemHtml = document.getElementById(id)
-            
-            if (itemHtml){
-                this.lista_imagens.push(this.lista_imagens.length + 1)
+            try{
+
+                const target = $event.target as HTMLInputElement
+
+                if (target && target.files){
+                    
+                    this.file_img = target.files[0]    
+                    let form_f = new FormData()
+                    form_f.append('file', this.file_img)                
+
+                    if (this.form.imagens.find(i => i == this.file_img?.name)){
+                        alert('Esta Imagem já foi adicionada')
+                    }else {
+
+                        this.form.imagens.push(this.file_img.name)
+                        
+                    }
+
+                }else{
+                    this.file_img = null
+                }
+
+            }catch(e){
+                this.file_img = null
             }
-            
+                        
+
         },
         addDocumento(indice: number){
 
@@ -132,22 +194,49 @@ export default defineComponent({
             
             if(this.link_atual != ''){
 
-                if (this.lista_links.find(l => l == this.link_atual)){
+                if (this.situacao.problema.links.find(l => l.url == this.link_atual)){
                     alert('Este link já foi adicionado')
                 }else {
                     
-                    this.form.links.push(this.link_atual)
+                    let var_link = new Link
+                    var_link.titulo = ''
+                    var_link.url = this.link_atual
+
+                    this.situacao.problema.links.push(var_link)
                     this.link_atual = ''
                 }
 
             }
             
+            console.log('Problema Resumo: ' + this.situacao.resumo)
+            console.log('Problema Detalhado: ' + this.situacao.problema.descricao)
+            console.log('Links: ')
+            this.situacao.problema.links.forEach(l => console.log(l.url))
             
         },
-        removeLink(link: string){
+        removeLink(link: Link){
             
-            this.form.links.splice(this.form.links.indexOf(link))
-            this.link_atual = ''
+            this.situacao.problema.links.splice(this.situacao.problema.links.indexOf(link))
+        },
+        removeImagem(imagem: string){
+            
+            console.log('imagem remover: ' + imagem)
+            this.form.imagens.splice(this.form.imagens.indexOf(imagem))
+            this.imagem_atual = ''
+        },
+        async saveSituacao(){
+
+            
+            await api.post('/Situacao', this.situacao)
+                .then((resp) => {
+                    console.log('Resultado: ' + resp)
+                    this.$emit('paginaListar', true)
+                })
+        }
+    },
+    watch:{
+        resumo(newValue, oldValue){
+            this.situacao.resumo = this.$props.resumo || ''
         }
     }
 })

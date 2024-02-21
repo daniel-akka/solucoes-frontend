@@ -3,10 +3,12 @@
         <NavHeader />
 
         <div v-if="(opcao_pagina == 'L')">
-            <HomeListaSituacoes :user="user" @pagina-cadastrar="paginaCadastrar"/>
+            <HomeListaSituacoes :user="usuario" :opcao="opcao_pagina" 
+            :lista_situacoes_home="lista_situacoes_home"
+            :atualizar="atualizar_lista" @pagina-cadastrar="paginaCadastrar"/>
         </div>
         <div v-if="(opcao_pagina == 'C')">
-            <PaginaCadastrarSituacao :key="indexKeyCad" @pagina-listar="paginaListar"/>
+            <PaginaCadastrarSituacao :user="usuario" :key="indexKeyCad" @pagina-listar="paginaListar"/>
         </div>
 
         <HomeFooter />
@@ -36,40 +38,50 @@ export default defineComponent({
     },
     data() {
         return{
+            usuario: UsuarioSimples
         }
     },
     setup() {
         let opcao_pagina = ref('L') //L - Listar; V - Visualizar; E - Editar; C - Criar
-        
+        let atualizar_lista = true
         let pagina = ref(PaginaCadastrarSituacao)
         let indexKeyCad = ref(0)
 
+
+        let lista_situacoes_home = ref([{
+                id: '',
+                resumo: '',
+                descricao_problema: ''
+            }])
+
+        
         return{
             opcao_pagina,
             pagina,
-            indexKeyCad
+            indexKeyCad,
+            atualizar_lista,
+            lista_situacoes_home
         }
+    },
+    created(){
+        this.lista_situacoes_home.splice(0)
     },
     mounted(){
         Object.assign(usuario_logado, this.user)
+        Object.assign(this.usuario, this.$props.user)
     },
     methods: {
-        paginaCadastrar(){
+        paginaCadastrar(lista: Object){
             this.indexKeyCad++
             this.opcao_pagina = 'C'
+            this.atualizar_lista = false
+
+            Object.assign(this.lista_situacoes_home, lista)
         },
-        paginaListar(){
+        paginaListar(atualizar: boolean){
             this.opcao_pagina = 'L'
-        }
-    },
-    computed: {
-        componentCad(){
-            return 'pagina-cadastrar-situacao'
+            this.atualizar_lista = atualizar
         }
     }
 })
 </script>
-
-<style scoped>
-
-</style>@/classes/ClUsuarioSimples

@@ -59,18 +59,23 @@ export default defineComponent({
                 senha: '',
                 email: ''
             }
-            
+
+            let OK = false
+
             const qs = require('qs');
             await api.get(qs.stringify({
                 'login': this.login_email, 
                 'senha': this.senha
             }))
-                .then(response => (Object.assign(usuario, response.data)))
+                .then(response => {
+                    OK = true
+                    Object.assign(usuario, response.data)
+                })
                 .catch((error) => {
                     console.log(JSON.stringify(error));
                 });
 
-            if (usuario == null){
+            if (OK == false){
                 this.$emit('mostrarErro', true, "Usuario não Encontrado");
             } else{
                 
