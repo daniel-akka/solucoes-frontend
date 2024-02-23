@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, setTransitionHooks } from 'vue'
+import { defineComponent } from 'vue'
 import FormLogin from '../components/forms/FormLogin.vue'
 
 export default defineComponent({

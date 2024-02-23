@@ -1,4 +1,5 @@
 import Usuario from '@/classes/ClUsuarioSimples'
+import FormCadastrarSituacaoVue from '@/components/forms/FormCadastrarSituacao.vue'
 import AboutPage from '@/views/AboutPage.vue'
 import CreateAccountPage from '@/views/CreateAccountPage.vue'
 import HomePage from '@/views/HomePage.vue'
@@ -30,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/newAccount',
     name: 'newAccount',
     component: CreateAccountPage
+  },
+  {
+    path: '/Situacao',
+    name: 'Situacao',
+    component: FormCadastrarSituacaoVue
   }
 
 ]

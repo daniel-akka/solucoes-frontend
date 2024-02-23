@@ -1,8 +1,8 @@
 export default class UsuarioSimples {
-    public id: String
-    public login: String
-    public email: String
-    public senha: String
+    public id: string
+    public login: string
+    public email: string
+    public senha: string
 
     public constructor(){
         this.login = ''

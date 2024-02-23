@@ -35,19 +35,21 @@
                 </thead>
                 <tbody>
 
-                    <tr v-if="(lista_filtrada.length > 0)" v-for="sit in lista_filtrada" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th v-show="false" scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    <tr v-if="(lista_filtrada.length > 0)" v-for="sit in lista_filtrada" 
+                        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <th v-show="false" scope="row" 
+                                class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 {{ sit.id }}
                             </th>
                             <td scope="row" class="pr-6 pb-4 pt-1 pl-6">
-                                <p class="pt-4 font-medium text-red-700 whitespace-nowrap dark:text-white">
+                                <p class="pt-2 font-medium text-red-700 whitespace-nowrap dark:text-white">
                                     {{ sit.resumo }}
                                 </p>
                                 <p >
                                     {{ sit.descricao_problema }}
                                 </p>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-2">
                                 <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a>
                             </td>
                         </tr><tr v-else class="text-center text-base font-semibold"><p>Nenhuma Situação encontrada</p></tr>

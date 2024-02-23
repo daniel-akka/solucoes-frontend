@@ -2,30 +2,35 @@
     <div class="max-w-full p-0 m-1 mx-auto bg-white border-2 border-red-200 rounded-lg sm:p-8 dark:bg-red-800 dark:border-red-700">
             
             <div class="mb-6">
-                <label for="descricao_problema" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrição do Problema:</label>
-                <textarea v-model="situacao.problema.descricao" id="descricao_problema" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Escreva uma descricao do problema..."></textarea>
+                <label for="descricao_input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrição do Problema:</label>
+                <textarea v-model="mdl_descricao_problema" v-on:blur="blurDescricao()" id="descricao_input" rows="3" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Escreva uma descricao do problema..."></textarea>
             </div>
 
             <!-- LINKS -->
             <div>   
                 
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="link">Links:</label>
-                <div class="border-2 rounded-lg p-2">
+                <div class="border-2 rounded-lg p-2" id="dropDownLink">
                     
                     <input v-on:change="addLink()" v-model="link_atual" 
                         class="mt-2 w-full text-sm focus:ring-red-500 focus:border-red-500 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" 
                         type="text" placeholder="http://">
 
-                    <select v-show="(situacao.problema.links.length > 0)" 
-                        v-model="model_links"
+                    <ul v-show="(situacao.problema_links.length > 0)" 
                         multiple id="countries_multiple" 
-                        class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500">
-                        <option v-for="link in situacao.problema.links" :value="link.url" @dblclick="removeLink(link)" 
-                            >{{ link.url }}</option>
-                    </select>                  
+                        class="mt-2 overflow-y-scroll overflow-x-hidden h-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500" 
+                        >
+                        <li v-for="(link, index) in situacao.problema_links" 
+                            :value="link.url" @dblclick="removeLink(link)" 
+                            :id="'link' + index"
+                            @click="selectLink('link' + index) "
+                            >{{ link.url }}</li>
+                    </ul> 
+
                 </div>
             </div>
-
+        
+            
             <!-- Lista de Input Files de IMAGEM -->
             <div class="mt-5">
                 
@@ -62,7 +67,7 @@
                     
                 </div>
             </div>
-            
+        
     </div>
 </template>
 
@@ -73,19 +78,21 @@ import InputDocFile from '@/components/inputs/InputDocFile.vue'
 import InputVideoFile from '@/components/inputs/InputVideoFile.vue'
 import InputLinkText from '@/components/inputs/InputLinkText.vue'
 import UsuarioSimples from '@/classes/ClUsuarioSimples'
-import SituacaoDto from '@/classes/dto/ClSituacaoDto'
+import SituacaoRecord from '@/classes/dto/ClSituacaoRecord'
 import Link from '@/classes/ClLink'
-import api from '@/services/api'
+
 
 let usuario_logado = new UsuarioSimples()
 
+
 export default defineComponent({
     name: 'FormProblemaCad',
-    emits: ['paginaListar'],
+    emits: ['paginaListar', 'setSituacao', 'setDescricao'],
     props:{
         user: Object,
-        param_situacao: Object,
-        resumo: String
+        param_situacao: SituacaoRecord,
+        resumo: String,
+        descricao: String
     },
     components: {
         InputImageFile,
@@ -97,17 +104,18 @@ export default defineComponent({
         let arr_string: string[] = []
         let arr_str_imagem: string[] = []
         let userSimples = new UsuarioSimples()
-        let sit = new SituacaoDto()
+        let sit = new SituacaoRecord()
 
         return{
             usuario: UsuarioSimples,
             newLink: '',
             link_atual: '',
             imagem_atual: '',
+            mdl_descricao_problema: ref(''),
             model_links: null,
             model_imagens: null,
             file_img: ref<File | null>(),
-            situacao: sit,
+            situacao: ref(sit),
             form: {
                 usuario: userSimples,
                 resumo: '',
@@ -125,6 +133,7 @@ export default defineComponent({
         Object.assign(this.situacao, this.param_situacao)
 
         this.form.usuario = usuario_logado
+        this.situacao.id_usuario = usuario_logado.id
     },
     setup () {
 
@@ -194,7 +203,7 @@ export default defineComponent({
             
             if(this.link_atual != ''){
 
-                if (this.situacao.problema.links.find(l => l.url == this.link_atual)){
+                if (this.situacao.problema_links.find(l => l.url == this.link_atual)){
                     alert('Este link já foi adicionado')
                     this.link_atual = ''
                 }else {
@@ -203,8 +212,9 @@ export default defineComponent({
                     var_link.titulo = ''
                     var_link.url = this.link_atual
 
-                    this.situacao.problema.links.push(var_link)
+                    this.situacao.problema_links.push(var_link)
                     this.link_atual = ''
+
                 }
 
             }
@@ -212,9 +222,9 @@ export default defineComponent({
         },
         removeLink(link: Link){
             
-            const item = this.situacao.problema.links.findIndex(l => l.url == link.url)
+            const item = this.situacao.problema_links.findIndex(l => l.url == link.url)
             if (item > -1){
-                this.situacao.problema.links.splice(item, 1)
+                this.situacao.problema_links.splice(item, 1)
             }
             
         },
@@ -224,19 +234,23 @@ export default defineComponent({
             this.form.imagens.splice(this.form.imagens.indexOf(imagem), 1)
             this.imagem_atual = ''
         },
-        async saveSituacao(){
-
+        selectLink(id_: string){
             
-            await api.post('/Situacao', this.situacao)
-                .then((resp) => {
-                    console.log('Resultado: ' + resp)
-                    this.$emit('paginaListar', true)
-                })
+           let el = document.getElementById(id_)
+           if (el){el}
+        },
+        blurDescricao(){
+            this.situacao.problema_descricao = this.mdl_descricao_problema
+            this.$emit('setDescricao', this.situacao.problema_descricao)
+            //Object.assign(this.$props.param_situacao, this.situacao)
         }
     },
     watch:{
         resumo(newValue, oldValue){
-            this.situacao.resumo = this.$props.resumo || ''
+            this.situacao.situacao_resumo = this.$props.resumo || ''
+        },
+        situacao(newValue, oldValue){
+            this.$emit('setSituacao', this.situacao)
         }
     }
 })
