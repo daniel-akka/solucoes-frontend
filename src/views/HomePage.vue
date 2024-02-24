@@ -3,12 +3,12 @@
         <NavHeader />
 
         <div v-if="(opcao_pagina == 'L')">
-            <HomeListaSituacoes :user="usuario" :opcao="opcao_pagina" 
+            <HomeListaSituacoes :user="usuario_logado" :opcao="opcao_pagina" 
             :lista_situacoes_home="lista_situacoes_home"
             :atualizar="atualizar_lista" @pagina-cadastrar="paginaCadastrar"/>
         </div>
         <div v-if="(opcao_pagina == 'C')">
-            <PaginaCadastrarSituacao :user="usuario" :key="indexKeyCad" @pagina-listar="paginaListar"/>
+            <PaginaCadastrarSituacao :key="indexKeyCad" :idSituacaoParam="id_Situacao" :user="usuario_logado"  @pagina-listar="paginaListar"/>
         </div>
 
         <HomeFooter />
@@ -23,12 +23,13 @@ import HomeListaSituacoes from '@/components/HomeListaSituacoes.vue'
 import PaginaCadastrarSituacao from '@/components/PaginaCadastrarSituacao.vue'
 import UsuarioSimples from '@/classes/ClUsuarioSimples'
 
-let usuario_logado = new UsuarioSimples()
-
 export default defineComponent({
     name: 'HomePage',
     props: {
-        user: Object
+        user: {
+            type: UsuarioSimples,
+            required: true
+        }
     },
     components: {
         NavHeader,
@@ -36,17 +37,12 @@ export default defineComponent({
         HomeListaSituacoes,
         PaginaCadastrarSituacao
     },
-    data() {
-        return{
-            usuario: UsuarioSimples
-        }
-    },
-    setup() {
+    setup(props) {
         let opcao_pagina = ref('L') //L - Listar; V - Visualizar; E - Editar; C - Criar
         let atualizar_lista = true
         let pagina = ref(PaginaCadastrarSituacao)
         let indexKeyCad = ref(0)
-
+        let usuario_logado = new UsuarioSimples()
 
         let lista_situacoes_home = ref([{
                 id: '',
@@ -54,28 +50,34 @@ export default defineComponent({
                 descricao_problema: ''
             }])
 
-        
+            let id_Situacao = new String()
+
         return{
+            usuario_logado,
             opcao_pagina,
             pagina,
             indexKeyCad,
             atualizar_lista,
-            lista_situacoes_home
+            lista_situacoes_home,
+            id_Situacao,
+            props
         }
     },
     created(){
         this.lista_situacoes_home.splice(0)
-    },
-    mounted(){
-        Object.assign(usuario_logado, this.user)
-        Object.assign(this.usuario, this.$props.user)
+
+        if (typeof(this.$route.params.id) == 'string'){
+            this.usuario_logado.id = this.$route.params.id
+        }
+        
     },
     methods: {
-        paginaCadastrar(lista: Object){
+        paginaCadastrar(lista: Object, id: string){
             this.indexKeyCad++
+            this.id_Situacao = id 
             this.opcao_pagina = 'C'
             this.atualizar_lista = false
-
+            
             Object.assign(this.lista_situacoes_home, lista)
         },
         paginaListar(atualizar: boolean){

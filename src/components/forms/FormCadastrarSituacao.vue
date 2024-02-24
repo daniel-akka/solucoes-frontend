@@ -119,14 +119,19 @@ import MsgSucess from '../MsgSucess.vue'
 import MsgAlerta from '../MsgAlerta.vue'
 import api from '@/services/api'
 import Link from '@/classes/ClLink'
+import SituacaoServices from '@/services/ClSituacaoServices'
 
 let usuario_logado = new UsuarioSimples()
-let sit = new SituacaoRecord()
+const servicos = new SituacaoServices()
 
 export default defineComponent({
     name: 'FormCadastrarSituacao',
     props: {
-        user: Object
+        user: {
+            type: UsuarioSimples,
+            situacaoParam: Object
+        },
+        idSituacaoParam: Object,
     },
     components:{FormProblemaCad, MsgSucess, MsgAlerta},
     emits: ['redirecionaPaginaListar'],
@@ -137,8 +142,8 @@ export default defineComponent({
         let sit = new SituacaoRecord()
 
         return{
-            usuario: UsuarioSimples,
-            situacao_parent: ref(sit),
+            usuario: userSimples,
+            situacao_parent: sit,
             newLink: '',
             link_atual: '',
             imagem_atual: '',
@@ -148,6 +153,7 @@ export default defineComponent({
             mostrar_msg: false,
             sucesso: false,
             mensagem: '',
+            idSituacao: '',
             file_img: ref<File | null>(),
                 form: {
                 usuario: userSimples,
@@ -159,7 +165,7 @@ export default defineComponent({
             }
         }
     },
-    setup() {
+    setup(props) {
 
         const file = {
             file: ref<File | null>(),
@@ -179,14 +185,33 @@ export default defineComponent({
         let array_imagens = [file] 
 
         return { lista_documentos, array_imagens,
-            file
+            file, props
          }
     },
     created() {
 
-        Object.assign(usuario_logado, this.user)
         Object.assign(this.usuario, this.$props.user)
-        this.situacao_parent.id_usuario = usuario_logado.id
+        //this.idSituacao = this.$props.idSituacaoParam
+        
+        console.log('Usuario ID: ' + this.usuario.id)
+        console.log('Situacao ID: ' + this.idSituacao)
+
+        if(this.idSituacao != ''){
+
+            let situacao_promise = servicos.get(this.idSituacao)
+            if (situacao_promise != undefined){
+                Object.assign(this.situacao_parent, situacao_promise)
+            }
+
+        }else {
+
+            Object.assign(usuario_logado, this.user)
+            Object.assign(this.usuario, this.$props.user)
+
+            this.situacao_parent.id_usuario = usuario_logado.id
+
+        }
+
     },
     methods: {
         paginaListar(atualizar: boolean){
@@ -201,8 +226,12 @@ export default defineComponent({
         async salvarSituacao(e: Event){
             e.preventDefault()
 
-            //console.log(JSON.parse(JSON.stringify(this.situacao_parent)))
-            await api.post('Situacao', JSON.parse(JSON.stringify(this.situacao_parent))).then((resp) => {
+            
+            if (this.idSituacao == ''){
+                
+                //EXECUTA UM Request POST
+                //JSON.parse(JSON.stringify(this.situacao_parent))
+                await api.post('Situacao', JSON.parse(JSON.stringify(this.situacao_parent))).then((resp) => {
                     this.mensagem = 'Situação Salva com Sucesso! Redirecionando...'
                     this.mostrar_msg = true
                     this.sucesso = true
@@ -222,6 +251,33 @@ export default defineComponent({
                     }, 5000);
                     
                 })
+            }else{
+
+                //Executa um Request PUT
+                const qs = require('qs')
+                await api.put('Situacao/', qs.stringify({
+                'id_sit': this.idSituacao
+            }), JSON.parse(JSON.stringify(this.situacao_parent))).then((resp) => {
+                    this.mensagem = 'Situação Salva com Sucesso! Redirecionando...'
+                    this.mostrar_msg = true
+                    this.sucesso = true
+
+                    setTimeout(() => {
+                        this.mostrar_msg = false
+                        this.$emit('redirecionaPaginaListar', true)    
+                    }, 2000);
+                    
+                }).catch(erro => {
+
+                    this.mensagem = 'Erro ao Salvar:: ' + erro
+                    this.mostrar_msg = true
+                    this.sucesso = false
+                    setTimeout(() => {
+                        this.mostrar_msg = false
+                    }, 5000);
+                    
+                })
+            }
 
         },
         cancelar(){

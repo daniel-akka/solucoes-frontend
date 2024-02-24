@@ -1,11 +1,20 @@
-import Usuario from '@/classes/ClUsuarioSimples'
+import UsuarioSimples from '@/classes/ClUsuarioSimples'
 import FormCadastrarSituacaoVue from '@/components/forms/FormCadastrarSituacao.vue'
 import AboutPage from '@/views/AboutPage.vue'
 import CreateAccountPage from '@/views/CreateAccountPage.vue'
-import HomePage from '@/views/HomePage.vue'
 import LoginPage from '@/views/LoginPage.vue'
+import HomePage from '@/views/HomePage.vue'
 
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+
+const Home = {
+  props: {
+    user: {
+      type: UsuarioSimples
+    }
+  },
+  template: () => import('@/views/HomePage.vue')
+}
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -14,13 +23,10 @@ const routes: Array<RouteRecordRaw> = [
     component: LoginPage
   },
   {
-    path: '/home',
+    path: '/home/:id',
     name: 'home',
     component: HomePage,
-    props: (route) => ({
-      user: Usuario,
-      ...route.params
-    })
+    props: true
   },
   {
     path: '/about',

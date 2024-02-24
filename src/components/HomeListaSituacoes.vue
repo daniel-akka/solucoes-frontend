@@ -15,7 +15,7 @@
                         id="table-search" class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500" placeholder="Pesquisar por Situações">
                 </div>
 
-                <button type="button" @click="$emit('paginaCadastrar', lista_situacoes)" class="flex flex-col p-4 mt-4 border focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                <button type="button" @click="$emit('paginaCadastrar', lista_situacoes, '')" class="flex flex-col p-4 mt-4 border focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
                     Nova Situação
                 </button>
             </div>
@@ -50,7 +50,9 @@
                                 </p>
                             </td>
                             <td class="px-6 py-2">
-                                <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a>
+                                <button @click="$emit('paginaCadastrar', lista_situacoes, sit.id)" type="button" 
+                                    class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-amber-400 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Editar</button>
+                                <!-- <a href="#" v-on:click="editarSituacao(sit.id)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a> -->
                             </td>
                         </tr><tr v-else class="text-center text-base font-semibold"><p>Nenhuma Situação encontrada</p></tr>
                     
@@ -66,16 +68,22 @@ import UsuarioSimples from '@/classes/ClUsuarioSimples';
 import Situacoes from '@/interfaces/Situacoes'
 import api from '@/services/api';
 import { defineComponent, ref } from 'vue'
-
-let usuario_logado = new UsuarioSimples()
-
             
 export default defineComponent({
     name: 'HomeListaSituacoes',
     props: {
-        user: Object,
-        opcao: String,
-        atualizar: Boolean,
+        user: {
+            type: UsuarioSimples,
+            required: true
+        },
+        opcao:{
+            type: String,
+            default: ''
+        },
+        atualizar: {
+            type: Boolean,
+            default: false
+        },
         lista_situacoes_home: Object
     },
     data(){
@@ -91,16 +99,17 @@ export default defineComponent({
             console.log('Buscar: ' + buscar + '; Option: ' + option)
             if ((option == 'L') && buscar){
                 console.log('entrou na funcao')
-                this.getSituacoesUsuario(usuario_logado)
+                this.getSituacoesUsuario(this.usuario_logado)
             }else{
                 Object.assign(this.lista_situacoes, this.$props.lista_situacoes_home)
             }
         }
     },
-    emits: ['paginaCadastrar'],
-    setup() {
+    emits: ['paginaCadastrar', 'paginaEditar'],
+    setup(props) {
 
             let situacoes_array = new Array<Situacoes>()
+            let usuario_logado = new UsuarioSimples()
 
             let lista_situacoes = ref([{
                 id: '',
@@ -128,7 +137,9 @@ export default defineComponent({
                 lista_situacoes,
                 lista_filtrada,
                 text_pesquisa,
-                lista_zero
+                lista_zero,
+                usuario_logado,
+                props
             }
         },
     created() {
@@ -137,11 +148,11 @@ export default defineComponent({
         this.lista_filtrada.splice(0)
         this.lista_zero.splice(0)
 
-        Object.assign(usuario_logado, this.user)
+        Object.assign(this.usuario_logado, this.user)
         Object.assign(this.usuario, this.$props.user)
         let buscar: boolean = this.$props.atualizar || false
-        if (buscar){
-            this.getSituacoesUsuario(usuario_logado)
+        if (buscar && (this.usuario_logado.id != '')){
+            this.getSituacoesUsuario(this.usuario_logado)
         }else{
             Object.assign(this.lista_situacoes, this.$props.lista_situacoes_home)
         }
@@ -175,6 +186,9 @@ export default defineComponent({
                 }
                 
             }else{this.lista_filtrada = this.lista_situacoes}
+        },
+        editarSituacao(id: string){
+            this.$emit('paginaEditar', this.lista_situacoes, id)
         }
     }
 })
