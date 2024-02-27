@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
     component: LoginPage
   },
   {
-    path: '/home/:id',
+    path: '/home',
     name: 'home',
     component: HomePage,
     props: true

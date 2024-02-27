@@ -6,7 +6,7 @@ const api: AxiosInstance = axios.create(
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': 'Origin, X-Requested-Width, Content-Type, Accept',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
             'Content-Type': 'application/json; charset=UTF-8',
             'Accept': '*/*'
         }

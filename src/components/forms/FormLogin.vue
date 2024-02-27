@@ -1,6 +1,6 @@
 <template>
 
-    <div class="w-full centraliza-div max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+    <div class="w-full centraliza-div max-w-sm p-4 border-t-4 border-t-emerald-800 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
                 
         <form class="space-y-6" @submit.prevent>
                     <h5 class="text-xl font-medium text-gray-900 dark:text-white">Login do Sistema</h5>
@@ -48,9 +48,15 @@ export default defineComponent({
 
         let login_email = ''
         let senha = ''
+        let idUsuario = ''
     
         return{
-            usuario_logado, login_email, senha
+            usuario_logado, login_email, senha, idUsuario
+        }
+    },
+    mounted(){
+        if (localStorage.id_usuario){
+            this.idUsuario = localStorage.id_usuario
         }
     },
     methods: {
@@ -74,8 +80,8 @@ export default defineComponent({
                 this.$emit('mostrarErro', true, "Usuario não Encontrado")
             } else{
                 
-                this.$router.push({name: 'home', 
-                params: {id: this.usuario_logado.id}})
+                localStorage.id_usuario = this.usuario_logado.id
+                this.$router.push('home')
             }
 
         },

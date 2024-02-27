@@ -12,24 +12,14 @@ export default class UsuarioServices{
         this.lista_usuarios = new Array<UsuarioSimples>()
     }
 
-    
-    public getByID(id: string): UsuarioSimples{
-
-        this.usuario = new UsuarioSimples()
-
-        this.getByIDAsync(id)
-
-        return this.usuario
-    }
-
     // Default Methods ASYNC:
 
-    private async getByIDAsync(id: string){
+    public async getByIDAsync(id: string): Promise<UsuarioSimples> {
     
         if (id == ''){return this.usuario}
     
         let qs = require('qs')
-        await api.get('id/', qs.stringfy({
+        const usuario_retorno = await api.get('id/', qs.stringfy({
             "id_usuario": id
         })).then((resp) => {
 
@@ -37,8 +27,10 @@ export default class UsuarioServices{
             return this.usuario
         }).catch(erro => {
 
-            return this.usuario
+            return new UsuarioSimples()
         })
+
+        return usuario_retorno
     }
 
     public async getByLoginAsync(login_email: string, senha: string): Promise<UsuarioSimples> {

@@ -1,9 +1,9 @@
 <template>
     <div>
 
-        <div class="w-full centraliza-div max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+        <div class="centraliza-div-form-login w-lvw max-w-md border-t-4 border-t-emerald-800 p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
 
-            <form class="max-w-sm mx-auto">
+            <form class="space-y-6">
                 <h5 class="text-xl font-medium text-gray-900 dark:text-white margem">Nova Conta</h5>
                 <div class="mb-5">
                     <label for="login" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Seu Login:</label>
@@ -32,9 +32,13 @@
                     </div>
                     <label for="terms" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Eu concordo com os <a href="#" class="text-emerald-600 hover:underline dark:text-emerald-500">termos e condições</a></label>
                 </div>
-                <button type="submit" @click="salvarUsuario($event)" class="text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-emerald-600 dark:hover:bg-emerald-700 dark:focus:ring-emerald-800">
+                <button type="submit" @click="salvarUsuario($event)" 
+                    class="w-full mb-1 text-white bg-emerald-700 hover:bg-emerald-800 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-emerald-600 dark:hover:bg-emerald-700 dark:focus:ring-emerald-800">
                     Registrar nova Conta
                 </button>
+                <button type="button" v-on:click="pageLogin()"
+                    class="w-full mt-0 py-2.5 px-5 me-2 mb-2 text-base font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-400 hover:bg-gray-100 hover:text-emerald-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                    Cancelar</button>
             </form>
         </div>
 
@@ -57,7 +61,7 @@ import UsuarioConsulta from '@/interfaces/UsuarioConsulta'
 import Usuario from '@/classes/ClUsuarioSimples'
 
 let lista_usuarios = new Array<UsuarioConsulta>()
-let usuario: Usuario
+let usuario = new Usuario()
 
 export default defineComponent({
     name: 'FormCreateAccount',
@@ -197,6 +201,11 @@ export default defineComponent({
 
                 this.pode_salvar = false
             }
+        },
+        pageLogin(){
+
+            localStorage.id_usuario = ''
+            this.$router.push('login')
         }
     }
 })

@@ -34,6 +34,13 @@ export default defineComponent({
             const dropdown = new Dropdown($targetEl, $triggerEl, options);
         }
 
+    },
+    methods: {
+        logout(){
+
+            localStorage.id_usuario = ''
+            this.$router.push('login')
+        }
     }
 })
 </script>
@@ -80,7 +87,8 @@ export default defineComponent({
                                     </li>
                                 </ul>
                                 <div class="py-1">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sair</a>
+                                <a href="#" v-on:click="logout()"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sair</a>
                                 </div>
                             </div>
                         </li>

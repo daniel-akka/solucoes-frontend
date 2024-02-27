@@ -28,7 +28,10 @@
                         <th scope="col" class="px-6 py-3">
                             Resumo da Situação
                         </th>
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="pl-3 pr-2 py-3">
+                            
+                        </th>
+                        <th scope="col" class="pl-2 pr-2 py-3">
                             
                         </th>
                     </tr>
@@ -49,9 +52,14 @@
                                     {{ sit.descricao_problema }}
                                 </p>
                             </td>
-                            <td class="px-6 py-2">
+                            <td class="pl-6 pr-2 mx-0 py-2 w-4">
                                 <button @click="$emit('paginaCadastrar', lista_situacoes, sit.id)" type="button" 
                                     class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-amber-400 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Editar</button>
+                                <!-- <a href="#" v-on:click="editarSituacao(sit.id)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a> -->
+                            </td>
+                            <td class="pl-2 pr-2 mx-0 py-2 w-4">
+                                <button @click="deleteSituacao(sit.id)" type="button" 
+                                    class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-red-400 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Deletar</button>
                                 <!-- <a href="#" v-on:click="editarSituacao(sit.id)" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Editar</a> -->
                             </td>
                         </tr><tr v-else class="text-center text-base font-semibold"><p>Nenhuma Situação encontrada</p></tr>
@@ -67,15 +75,14 @@
 import UsuarioSimples from '@/classes/ClUsuarioSimples';
 import Situacoes from '@/interfaces/Situacoes'
 import api from '@/services/api';
+import SituacaoServices from '@/services/ClSituacaoServices';
 import { defineComponent, ref } from 'vue'
-            
+
+const service = new SituacaoServices()
+
 export default defineComponent({
     name: 'HomeListaSituacoes',
     props: {
-        user: {
-            type: UsuarioSimples,
-            required: true
-        },
         opcao:{
             type: String,
             default: ''
@@ -85,11 +92,6 @@ export default defineComponent({
             default: false
         },
         lista_situacoes_home: Object
-    },
-    data(){
-        return{
-            usuario: UsuarioSimples
-        }
     },
     watch:{
         opcao(newValue, oldValue){
@@ -131,7 +133,7 @@ export default defineComponent({
 
 
             let text_pesquisa = ref('')
-
+            let id_usuario = ''
             return {
                 situacoes_array,
                 lista_situacoes,
@@ -139,7 +141,8 @@ export default defineComponent({
                 text_pesquisa,
                 lista_zero,
                 usuario_logado,
-                props
+                props,
+                id_usuario
             }
         },
     created() {
@@ -148,8 +151,7 @@ export default defineComponent({
         this.lista_filtrada.splice(0)
         this.lista_zero.splice(0)
 
-        Object.assign(this.usuario_logado, this.user)
-        Object.assign(this.usuario, this.$props.user)
+        this.usuario_logado.id = localStorage.id_usuario
         let buscar: boolean = this.$props.atualizar || false
         if (buscar && (this.usuario_logado.id != '')){
             this.getSituacoesUsuario(this.usuario_logado)
@@ -157,6 +159,12 @@ export default defineComponent({
             Object.assign(this.lista_situacoes, this.$props.lista_situacoes_home)
         }
         Object.assign(this.lista_filtrada, this.lista_situacoes)
+    },
+    mounted(){
+
+        if (localStorage.id_usuario){
+            this.id_usuario = localStorage.id_usuario
+        }
     },
     methods: {
         async getSituacoesUsuario(usuario: UsuarioSimples){
@@ -189,6 +197,23 @@ export default defineComponent({
         },
         editarSituacao(id: string){
             this.$emit('paginaEditar', this.lista_situacoes, id)
+        },
+        async deleteSituacao(id: string){
+            const data = await service.delete(id)
+                .then(resp => {
+                    this.atualizaConsulta(id)
+                    alert('Situação deletada com Sucesso!')
+                })
+
+        },
+        atualizaConsulta(id: string){
+
+            const item = this.lista_situacoes.findIndex(l => l.id == id)
+            if (item > -1){
+                this.lista_situacoes.splice(item, 1)
+            }
+            this.lista_situacoes = this.lista_situacoes.splice(this.lista_situacoes.findIndex(l => l.id == id), 1)
+            this.filtrarPesquisa()
         }
     }
 })

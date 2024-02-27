@@ -17,7 +17,7 @@
                 <h5 class="block mb-2 text-sm text-center font-medium text-gray-900 dark:text-white">Situação:</h5>
                 <div class="mb-6">
                     <label for="resumo_parent" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Resumo da Situação:</label>
-                    <input v-model="situacao_parent.situacao_resumo" type="text" id="resumo_parent" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500" autofocus required>
+                    <input v-model="nova_situacao.situacao_resumo" type="text" id="resumo_parent" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500" autofocus required>
                 </div>
                 
                 <h5 class="block mb-2 text-sm text-center font-medium text-red-700 dark:text-white">Problema:</h5>
@@ -27,7 +27,7 @@
             
                         <div class="mb-6">
                             <label for="descricao_input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descrição do Problema:</label>
-                            <textarea v-model="situacao_parent.problema_descricao" id="descricao_input" rows="3" 
+                            <textarea v-model="nova_situacao.problema_descricao" id="descricao_input" rows="3" 
                                 class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500" placeholder="Escreva uma descricao do problema..."></textarea>
                         </div>
 
@@ -41,11 +41,11 @@
                                     class="mt-2 w-full text-sm focus:ring-red-500 focus:border-red-500 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" 
                                     type="text" placeholder="http://">
 
-                                <ul v-show="(situacao_parent.problema_links.length > 0)" 
+                                <ul v-show="(nova_situacao.problema_links.length > 0)" 
                                     multiple id="countries_multiple" 
                                     class="mt-2 overflow-y-scroll overflow-x-hidden h-24 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-500 dark:focus:border-red-500" 
                                     >
-                                    <li v-for="(link, index) in situacao_parent.problema_links" 
+                                    <li v-for="(link, index) in nova_situacao.problema_links" 
                                         :value="link.url" @dblclick="removeLink(link)" 
                                         :id="'link' + index"
                                         @click="selectLink('link' + index) "
@@ -120,30 +120,23 @@ import MsgAlerta from '../MsgAlerta.vue'
 import api from '@/services/api'
 import Link from '@/classes/ClLink'
 import SituacaoServices from '@/services/ClSituacaoServices'
+import Situacao from '@/classes/ClSituacao'
 
 let usuario_logado = new UsuarioSimples()
+let situacao_selecionada = new Situacao()
 const servicos = new SituacaoServices()
 
 export default defineComponent({
     name: 'FormCadastrarSituacao',
-    props: {
-        user: {
-            type: UsuarioSimples,
-            situacaoParam: Object
-        },
-        idSituacaoParam: Object,
-    },
     components:{FormProblemaCad, MsgSucess, MsgAlerta},
     emits: ['redirecionaPaginaListar'],
     data(){
         let arr_string: string[] = []
         let arr_str_imagem: string[] = []
-        let userSimples = new UsuarioSimples()
         let sit = new SituacaoRecord()
 
         return{
-            usuario: userSimples,
-            situacao_parent: sit,
+            nova_situacao: sit,
             newLink: '',
             link_atual: '',
             imagem_atual: '',
@@ -153,10 +146,8 @@ export default defineComponent({
             mostrar_msg: false,
             sucesso: false,
             mensagem: '',
-            idSituacao: '',
             file_img: ref<File | null>(),
                 form: {
-                usuario: userSimples,
                 resumo: '',
                 descricao_problema: '',
                 links: arr_string,
@@ -188,28 +179,28 @@ export default defineComponent({
             file, props
          }
     },
-    created() {
+   async created() {
 
-        Object.assign(this.usuario, this.$props.user)
-        //this.idSituacao = this.$props.idSituacaoParam
-        
-        console.log('Usuario ID: ' + this.usuario.id)
-        console.log('Situacao ID: ' + this.idSituacao)
+        usuario_logado.id = localStorage.id_usuario
+        this.nova_situacao.id_usuario = usuario_logado.id
 
-        if(this.idSituacao != ''){
+        if (localStorage.id_situacao){
+            situacao_selecionada.id = localStorage.id_situacao
+        }else{
+            situacao_selecionada.id = ''
+        }
+          
 
-            let situacao_promise = servicos.get(this.idSituacao)
-            if (situacao_promise != undefined){
-                Object.assign(this.situacao_parent, situacao_promise)
-            }
+        if(situacao_selecionada.id != ''){
 
-        }else {
-
-            Object.assign(usuario_logado, this.user)
-            Object.assign(this.usuario, this.$props.user)
-
-            this.situacao_parent.id_usuario = usuario_logado.id
-
+            const data = await servicos.get(situacao_selecionada.id)
+                .then((resp) => {
+                    
+                    this.nova_situacao.setSituacao(resp)
+                })
+            
+        }else{
+            this.nova_situacao = new SituacaoRecord()
         }
 
     },
@@ -217,29 +208,31 @@ export default defineComponent({
         paginaListar(atualizar: boolean){
             this.$emit('redirecionaPaginaListar', atualizar)
         },
-        setSituacao(sit: SituacaoRecord){
-            this.$refs.situacao_parent = sit
-        },
         setDescricao(descricao: string){
-            this.situacao_parent.problema_descricao = descricao
+            this.nova_situacao.problema_descricao = descricao
+        },
+        setCamposFormulario(situacao_new: Situacao){
+
         },
         async salvarSituacao(e: Event){
             e.preventDefault()
 
             
-            if (this.idSituacao == ''){
+            if (situacao_selecionada.id == ''){
                 
+                this.nova_situacao.id_usuario = usuario_logado.id
                 //EXECUTA UM Request POST
                 //JSON.parse(JSON.stringify(this.situacao_parent))
-                await api.post('Situacao', JSON.parse(JSON.stringify(this.situacao_parent))).then((resp) => {
-                    this.mensagem = 'Situação Salva com Sucesso! Redirecionando...'
-                    this.mostrar_msg = true
-                    this.sucesso = true
+                await servicos.save(this.nova_situacao)
+                    .then((resp) => {
+                        this.mensagem = 'Situação Salva com Sucesso! Redirecionando...'
+                        this.mostrar_msg = true
+                        this.sucesso = true
 
-                    setTimeout(() => {
-                        this.mostrar_msg = false
-                        this.$emit('redirecionaPaginaListar', true)    
-                    }, 2000);
+                        setTimeout(() => {
+                            this.mostrar_msg = false
+                            this.$emit('redirecionaPaginaListar', true)    
+                        }, 2000);
                     
                 }).catch(erro => {
 
@@ -251,21 +244,21 @@ export default defineComponent({
                     }, 5000);
                     
                 })
+
+               
             }else{
 
                 //Executa um Request PUT
-                const qs = require('qs')
-                await api.put('Situacao/', qs.stringify({
-                'id_sit': this.idSituacao
-            }), JSON.parse(JSON.stringify(this.situacao_parent))).then((resp) => {
-                    this.mensagem = 'Situação Salva com Sucesso! Redirecionando...'
-                    this.mostrar_msg = true
-                    this.sucesso = true
+                await servicos.update(situacao_selecionada.id, this.nova_situacao)
+                    .then((resp) => {
+                        this.mensagem = 'Situação Salva com Sucesso! Redirecionando...'
+                        this.mostrar_msg = true
+                        this.sucesso = true
 
-                    setTimeout(() => {
-                        this.mostrar_msg = false
-                        this.$emit('redirecionaPaginaListar', true)    
-                    }, 2000);
+                        setTimeout(() => {
+                            this.mostrar_msg = false
+                            this.$emit('redirecionaPaginaListar', true)    
+                        }, 2000);
                     
                 }).catch(erro => {
 
@@ -328,7 +321,7 @@ export default defineComponent({
 
                 if(this.link_atual != ''){
 
-                    if (this.situacao_parent.problema_links.find(l => l.url == this.link_atual)){
+                    if (this.nova_situacao.problema_links.find(l => l.url == this.link_atual)){
                         alert('Este link já foi adicionado')
                         this.link_atual = ''
                     }else {
@@ -337,7 +330,7 @@ export default defineComponent({
                         var_link.titulo = ''
                         var_link.url = this.link_atual
 
-                        this.situacao_parent.problema_links.push(var_link)
+                        this.nova_situacao.problema_links.push(var_link)
                         this.link_atual = ''
 
                     }
@@ -347,9 +340,9 @@ export default defineComponent({
             },
             removeLink(link: Link){
 
-                const item = this.situacao_parent.problema_links.findIndex(l => l.url == link.url)
+                const item = this.nova_situacao.problema_links.findIndex(l => l.url == link.url)
                 if (item > -1){
-                    this.situacao_parent.problema_links.splice(item, 1)
+                    this.nova_situacao.problema_links.splice(item, 1)
                 }
 
             },
