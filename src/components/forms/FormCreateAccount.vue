@@ -148,59 +148,128 @@ export default defineComponent({
             }
             
         },
-        verificaLogin(){
+        verificaLogin(): boolean{
 
             this.show_login_msg = true
+            this.msg = ''
+            let pode_salvar = false
+            
             //se já existir um login no banco
             if (lista_usuarios.find(u => u.login == this.login)){
+                
                 this.existe_login = true
                 this.msg = 'Verifique se o Login está disponível'
+                pode_salvar = false
             } else {
 
-                this.existe_login = false
-                setTimeout(() => {
-                    this.show_login_msg = false    
-                }, 4000);
+                if (this.login == ''){
+
+                    this.existe_login = true
+                    this.msg = 'Informe um Login para continuar'
+                    pode_salvar = false
+                }else{
+
+                    this.existe_login = false
+                    this.show_login_msg = false 
+                    pode_salvar = true
+                        /*setTimeout(() => {
+                            this.show_login_msg = false    
+                        }, 4000);*/
+                    
+                }
+                
             }
 
+            return pode_salvar
         },
-        verificaEmail(){
+        verificaEmail(): boolean{
 
-            this.show_email_msg = true
+            this.show_email_msg = false
+            this.msg = ''
+            let pode_salvar = false
+
             //se já existir um email no banco
             if (lista_usuarios.find(u => u.email == this.email)){
+                
+                this.show_email_msg = true
                 this.existe_email = true
-                this.msg = 'Verifique se o Email está disponível'
+                this.msg = 'Email não está disponível'
+                pode_salvar = false
             } else {
-                this.existe_email = false
-                setTimeout(() => {
-                    this.show_email_msg = false    
-                }, 3000);
+
+                if (this.email == ''){
+
+                    this.show_email_msg = true
+                    this.existe_email = true
+                    this.msg = 'Você precisa informar um Email para continuar!'
+                    pode_salvar = false
+                }else {
+
+                    this.existe_email = false
+                    pode_salvar = true
+                    /*setTimeout(() => {
+                        this.show_email_msg = false    
+                    }, 3000);*/
+                }
+                
             }
 
+            return pode_salvar
         },
-        verificaSenha(){
+        verificaSenha(): boolean{
 
-            this.pode_salvar = false
             this.show_msg_senha = false
+            this.msg = ''
+            let pode_salvar = false
             if (this.senha != '' && this.senha_repet != ''){
 
-                this.show_msg_senha = true
+                
                 this.senhas_iguais = (this.senha == this.senha_repet)
 
                 if (this.senhas_iguais == false)
-                {this.msg = 'Verifique se as senhas são iguais'}
+                {
+                    this.show_msg_senha = true
+                    this.msg = 'Verifique se as senhas são iguais'
+                    pode_salvar = false
+                }else {
+                    this.show_msg_senha = false
+                    pode_salvar = true
+                }
+            }else{
+
+                this.show_msg_senha = true
+                this.msg = 'Informe uma senha para continuar'
+                pode_salvar = false
             }
+
+            return pode_salvar
         },
         validaCamposForm(){
-            this.pode_salvar = true
 
-            if (this.existe_login || this.existe_email || 
+            this.pode_salvar = true
+            if (this.verificaLogin() == true){
+
+                if (this.verificaEmail() == true){
+
+                    if (this.verificaSenha() == false){
+                        this.pode_salvar = false
+                    }
+                }else {this.pode_salvar = false}
+            }else {this.pode_salvar = false}
+            
+            
+            if ((this.terms == false)){
+                this.msg = 'Você precisa concordar com os termos'
+                this.pode_salvar = false
+            }
+            
+
+            /*if (this.existe_login || this.existe_email || 
             (this.senhas_iguais == false) || 
             (this.terms == false)){
 
                 this.pode_salvar = false
-            }
+            }*/
         },
         pageLogin(){
 

@@ -1,13 +1,9 @@
 <template>
     <div>
         
-        <a v-show="erro_show" href="#" class="block centralizar max-w-sm p-2 bg-red-400 border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-
-            <h5 class="mb-2 text-1x1 text-center font-bold tracking-tight text-gray-900 dark:text-white">
-                {{ mensagem }}
-            </h5>
-
-        </a>
+        <div v-show="erro_show">
+            <MsgAlerta :mensagem="mensagem"/>
+        </div>
 
         <FormLogin @mostrar-erro="mostrarErro"/>
     </div>
@@ -18,6 +14,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import FormLogin from '../components/forms/FormLogin.vue'
+import MsgAlerta from '@/components/MsgAlerta.vue'
 
 export default defineComponent({
     name: 'LoginPage',
@@ -28,7 +25,7 @@ export default defineComponent({
         }
     },
     components: {
-        FormLogin
+        FormLogin, MsgAlerta
     },
     methods: {
         mostrarErro(sim_: boolean, msg_: string){

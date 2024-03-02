@@ -35,7 +35,7 @@
                         <div>   
                             
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="link">Links:</label>
-                            <div class="border-2 rounded-lg p-2" id="dropDownLink">
+                            <div class="border-2 rounded-lg p-2 max-h-fit" id="dropDownLink">
                                 
                                 <input v-on:change="addLink()" v-model="link_atual" 
                                     class="mt-2 w-full text-sm focus:ring-red-500 focus:border-red-500 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" 
@@ -57,41 +57,42 @@
                     
                         
                         <!-- Lista de Input Files de IMAGEM -->
-                        <div class="mt-5">
-                            
-                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload de Imagens:</label>
-                            <div class="border-2 rounded-lg p-2">
-                                
-                                <input v-on:change="addImagem($event)" 
-                                    :ref="imagem_atual" 
-                                    class="mt-2 w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" id="file_input" type="file"
-                                    accept=".png, .jpg, .jpeg">
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">PNG, JPG, JPEG (MAX. 5MB).</p>
-                                
-                                <select v-show="(form.imagens.length > 0)" 
-                                    v-model="model_imagens"
-                                    multiple id="imagem_multiple" 
-                                    class="mt-2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-emerald-500 dark:focus:border-emerald-500">
-                                    <option v-for="img in form.imagens" :value="img" @dblclick="removeImagem(img)" 
-                                        >{{ img }}</option>
-                                </select> 
+                        
+                        <div class="py-2">
+                            <div v-if="array_imagens.length < 1" 
+                                id="image-preview" class="max-w-sm p-6 mb-4 bg-gray-100 border-dashed border-2 border-gray-400 rounded-lg items-center mx-auto text-center cursor-pointer">
+                                <input id="upload" type="file" class="hidden" accept=".png, .jpg, .jpeg, .gif" 
+                                :ref="imagem_atual" 
+                                v-on:change="addImagem($event)"/>
+                                <label for="upload" class="cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-700 mx-auto mb-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                                    </svg>
+                                    <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-700">Upload de Imagem</h5>
+                                    <p class="font-normal text-sm text-gray-400 md:px-6">Tamanho máximo de <b class="text-gray-600">2mb</b></p>
+                                    <p class="font-normal text-sm text-gray-400 md:px-6">e no formato de <b class="text-gray-600">JPG, PNG, or GIF</b></p>
+                                    <span id="filename" class="text-gray-500 bg-gray-200 z-50"></span>
+                                </label>
+                            </div><div v-else v-for="file in array_imagens" 
+                                id="image-preview" class="max-w-sm p-6 mb-4 bg-gray-100 border-dashed border-2 border-gray-400 rounded-lg items-center mx-auto text-center cursor-pointer">
+                                <input id="upload" type="file" class="hidden" accept=".png, .jpg, .jpeg, .gif" 
+                                :ref="imagem_atual" 
+                                v-on:change="addImagem($event)"/>
+                                <label for="upload" class="cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-700 mx-auto mb-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                                    </svg>
+                                    <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-700">Upload de Imagem</h5>
+                                    <p class="font-normal text-sm text-gray-400 md:px-6">Tamanho máximo de <b class="text-gray-600">2mb</b></p>
+                                    <p class="font-normal text-sm text-gray-400 md:px-6">e no formato de <b class="text-gray-600">JPG, PNG, or GIF</b></p>
+                                    <span id="filename" class="text-gray-500 bg-gray-200 z-50"></span>
+                                </label>
                             </div>
                         </div>
-
+                        
 
                         <!-- Lista de Input Files de DOCUMENTO -->
-                        <div class="mt-5">
-                            
-                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload de Documentos:</label>
-                            <div class="border-2 rounded-lg p-2">
-                                <input v-for="(item, index) in lista_documentos" :id="'docItem' + index" 
-                                    v-on:change="addDocumento(index)"
-                                    class="mt-2 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="file_input_help" type="file"
-                                    accept=".doc, .docx, .txt, .pdf">
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">TXT, DOC, DOX, PDF (MAX. 10MB).</p>
-                                
-                            </div>
-                        </div>
+                        
                     
                 </div>
 
@@ -117,7 +118,7 @@ import UsuarioSimples from '@/classes/ClUsuarioSimples'
 import SituacaoRecord from '@/classes/dto/ClSituacaoRecord'
 import MsgSucess from '../MsgSucess.vue'
 import MsgAlerta from '../MsgAlerta.vue'
-import api from '@/services/api'
+import UploadImagem from '@/components/forms-upload/UploadImagem.vue'
 import Link from '@/classes/ClLink'
 import SituacaoServices from '@/services/ClSituacaoServices'
 import Situacao from '@/classes/ClSituacao'
@@ -128,7 +129,7 @@ const servicos = new SituacaoServices()
 
 export default defineComponent({
     name: 'FormCadastrarSituacao',
-    components:{FormProblemaCad, MsgSucess, MsgAlerta},
+    components:{FormProblemaCad, MsgSucess, MsgAlerta, UploadImagem},
     emits: ['redirecionaPaginaListar'],
     data(){
         let arr_string: string[] = []
@@ -277,6 +278,40 @@ export default defineComponent({
             this.$emit('redirecionaPaginaListar', false)
         },
         addImagem($event: Event){
+
+            const uploadInput = document.getElementById('upload')
+            const filenameLabel = document.getElementById('filename')
+            const imagePreview = document.getElementById('image-preview')
+
+            let isEventListenerAdded = false
+
+            const target_imput = $event.target as HTMLInputElement
+
+            if (target_imput && target_imput.files){
+
+                const file = target_imput.files[0]
+
+                if (file){
+
+                    
+
+                    const reader = new FileReader()
+
+                    reader.onload = (e) => {
+
+                        imagePreview?.addEventListener('click', () => {
+                            uploadInput?.click()
+                        })
+                    }
+
+                    reader.readAsDataURL(file)
+                    
+
+                }
+
+            }
+        },
+        addImagemOld($event: Event){
 
                 try{
 
