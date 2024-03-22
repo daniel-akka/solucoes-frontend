@@ -89,19 +89,36 @@ export default defineComponent({
 
                 const response = await api.post('RecoveryPassword/',this.email).then(resp => {
 
-                    this.show_sucess = true
-                    setTimeout(() => {
-                        this.show_sucess = false
-                        this.close()
-                    }, 2000);
+                    
+                    if (resp.status == 200){
+
+                        this.show_sucess = true
+                        this.msg_sucess = resp.data
+
+                        setTimeout(() => {
+                            this.show_sucess = false
+                            this.close()
+                        }, 3000);
+                    }else {
+
+                        this.show_erro = true
+                        this.msg_erro = resp.data
+                        setTimeout(() => {
+                            
+                            this.show_erro = false
+                        }, 3000);
+                    }
+                    
 
                 }).catch(erro => {
 
+                    console.log(erro.response.data)
                     this.show_erro = true
+                    this.msg_erro = erro.response.data
                     setTimeout(() => {
                         
                         this.show_erro = false
-                    }, 2000);
+                    }, 4000);
                 })
 
             }

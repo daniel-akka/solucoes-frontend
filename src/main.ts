@@ -5,4 +5,5 @@ import router from './router'
 
 import './index.css'
 
-createApp(App).use(router).mount('#app')
+let app = createApp(App)
+app.use(router).mount('#app')

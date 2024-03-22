@@ -19,14 +19,47 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { parseQuery, useRoute } from 'vue-router';
+import ServiceRecoverPassword from '@/services/ServiceRecoverPassword';
+
+const apiRecovery = new ServiceRecoverPassword()
+const route = useRoute()
 
 export default defineComponent({
     name: 'RecoveryPassword',
     setup () {
         
+        let idRecovery = ''
+        return {idRecovery}
+    },
+    mounted() {
 
-        return {}
-    }
+        
+        try {
+            let id = this.$route.query.id
+            
+            if (typeof id === 'string'){
+                this.idRecovery = id
+            }
+        } catch (error) {
+           
+        }
+        
+        
+        if (this.idRecovery == ''){
+            console.log('redirect to login')
+            this.$router.push({path: '/login'})
+        }else {
+
+            /*const resp = apiRecovery.getByID(this.idRecovery)        
+            resp.then(result => {
+
+            }).catch(erro => {
+                //this.$router.push('Login')
+            })*/
+        }
+        
+    },
 })
 </script>
 

@@ -1,21 +1,10 @@
-import UsuarioSimples from '@/classes/ClUsuarioSimples'
 import FormCadastrarSituacaoVue from '@/components/forms/FormCadastrarSituacao.vue'
 import AboutPage from '@/views/AboutPage.vue'
 import CreateAccountPage from '@/views/CreateAccountPage.vue'
-import LoginPage from '@/views/LoginPage.vue'
 import HomePage from '@/views/HomePage.vue'
+import LoginPage from '@/views/LoginPage.vue'
 import RecoveryPassword from '@/views/RecoveryPassword.vue'
-
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-
-const Home = {
-  props: {
-    user: {
-      type: UsuarioSimples
-    }
-  },
-  template: () => import('@/views/HomePage.vue')
-}
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -45,16 +34,28 @@ const routes: Array<RouteRecordRaw> = [
     component: FormCadastrarSituacaoVue
   },
   {
-    path: '/Recovery',
-    name: 'Recovery',
-    component: RecoveryPassword
+    path: '/RecoveryPassword',
+    name: 'RecoveryPassword',
+    component: RecoveryPassword,
+
   }
 
 ]
 
+
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+router.beforeEach((to, from)=>{
+  if (to.path.includes('/RecoveryPassword')){
+
+    let id = to.query.id
+    if ((typeof id === 'string') == false){
+      return '/login'
+    }
+  }
 })
 
 export default router

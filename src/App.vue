@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+  <div>{{  }}</div>
   <router-view />
 </template>
 
@@ -9,7 +9,17 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'App',
   created() {
-    this.$router.push('login')
-  }
+    
+    const url = window.location.pathname
+    if (url.includes('/RecoveryPassword')){
+      //this.$router.push('login')
+    }else {
+      this.$router.push('login')
+    }
+    
+  },
+  mounted() {
+      console.log()
+  },
 })
 </script>
