@@ -33,9 +33,8 @@
                             </div>
                             <input type="email" v-model="email" v-on:blur="verificaEmail()" id="input-group-1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="seuemail@flowbite.com">
                             
-                            <p v-show="show_msg_email" class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">Oops!</span> {{ msg_email }}</p>
                         </div>
-
+                        <p v-show="show_msg_email" class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium">{{ msg_email }}</span></p>
                     </div>
                     <!-- Modal footer -->
                     <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
@@ -52,11 +51,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import api from '@/services/api'
+import RecoveryPasswordServices from '@/services/RecoveryPasswordServices'
 import BaseModal from '@/components/BaseModal.vue'
 import MsgSucess from '../MsgSucess.vue'
 import MsgAlerta from '../MsgAlerta.vue'
 
+const services = new RecoveryPasswordServices()
 
 export default defineComponent({
     name: 'FormRecoveryPasswordSend',
@@ -80,14 +80,8 @@ export default defineComponent({
 
             if (this.verificaEmail()){
 
-                const qs = require('qs')
-
-                let data = {
-                    "email": this.email
-                }
-                console.log('Email antes do envio: ' + data.email)
-
-                const response = await api.post('RecoveryPassword/',this.email).then(resp => {
+            
+                const response = await services.enviarEmail(this.email).then(resp => {
 
                     
                     if (resp.status == 200){
@@ -132,7 +126,8 @@ export default defineComponent({
                 this.show_msg_email = true
                 return false
             }else{
-                this.show_msg_email = false
+                this.msg_email = 'Aguarde um momento...'
+                this.show_msg_email = true
                 return true
             }
         }

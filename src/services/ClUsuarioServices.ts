@@ -49,4 +49,17 @@ export default class UsuarioServices{
 
             return usuario_retorno
     }
+
+    public async updateSenha(email: string, senha: string){
+
+        let data = require('qs')
+        data = {
+            'email': email,
+            'senha': senha
+        }
+
+        const response = await api.put('Usuario/UpdateSenha', data)
+
+        return data
+    }
 }

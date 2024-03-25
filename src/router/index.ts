@@ -50,7 +50,7 @@ const router = createRouter({
 
 router.beforeEach((to, from)=>{
   if (to.path.includes('/RecoveryPassword')){
-
+    //debugger
     let id = to.query.id
     if ((typeof id === 'string') == false){
       return '/login'
